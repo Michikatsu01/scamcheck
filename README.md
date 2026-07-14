@@ -6,8 +6,8 @@ ScamCheck giúp người dùng trên 45 tuổi kiểm tra nhanh các tin nhắn 
 
 ## Thành viên nhóm
 
-[Điền tên các thành viên của bạn]
-
+Nguyễn Quang Minh, Vũ Nguyễn Nhật Khánh, Lê Tùng Anh, Hồ Nhật Minh, Nguyễn Minh Khôi
+67
 ## Công nghệ sử dụng
 
 - HTML
