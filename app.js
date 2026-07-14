@@ -14,11 +14,21 @@ const practiceScore = document.getElementById('practiceScore');
 const practiceQuestion = document.getElementById('practiceQuestion');
 const practiceScamBtn = document.getElementById('practiceScamBtn');
 const practiceSafeBtn = document.getElementById('practiceSafeBtn');
-const practiceFeedback = document.getElementById('practiceFeedback');
-const practiceNextBtn = document.getElementById('practiceNextBtn');
+const questionNavigator = document.getElementById('questionNavigator');
+const previousQuestionBtn = document.getElementById('previousQuestionBtn');
+const nextQuestionBtn = document.getElementById('nextQuestionBtn');
+const submitQuizBtn = document.getElementById('submitQuizBtn');
+const quizWorkspace = document.getElementById('quizWorkspace');
+const quizResults = document.getElementById('quizResults');
 
 const HISTORY_KEY = 'scamcheck-history';
 const MAX_HISTORY_ITEMS = 10;
+const OFFICIAL_PHONES = Object.freeze({
+    Vietcombank: '1900545413',
+    CucAnToanThongTin: '156',
+    CongAn: '113'
+});
+const BLOCKED_PHONE_MESSAGE = '[Số điện thoại đã bị hệ thống chặn để bảo vệ bác - Vui lòng chỉ gọi số in trên thẻ ngân hàng]';
 const sampleMessages = {
     bank: 'Ngân hàng thông báo tài khoản của quý khách bị khóa. Vui lòng truy cập đường link http://kiemtra-taikhoan.example để xác minh ngay, nếu không tài khoản sẽ bị đóng.',
     police: 'CÔNG AN thông báo bạn có liên quan đến vụ án. Yêu cầu giữ bí mật và gọi ngay số 0900000000 để làm việc, nếu không sẽ bị bắt giữ.',
@@ -39,8 +49,8 @@ const practiceMessages = [
 ];
 
 let practiceIndex = 0;
-let practicePoints = 0;
-let practiceAnswered = false;
+const userAnswers = Array(10).fill(null);
+let quizSubmitted = false;
 
 const ai = new GoogleGenAI({ apiKey: GEMINI_API_KEY });
 
@@ -118,6 +128,28 @@ function escapeHtml(value) {
     return value.replace(/[&<>'"]/g, character => ({
         '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#039;', '"': '&quot;'
     }[character]));
+}
+
+function sanitizePhoneNumbers(text) {
+    if (typeof text !== 'string') return text;
+
+    // Matches 3–11 digits even when spaces, dots, or hyphens separate the digits.
+    const phonePattern = /(^|[^\d])((?:\d[ .-]?){2,10}\d)(?!\d)/g;
+    const officialPhoneValues = new Set(Object.values(OFFICIAL_PHONES));
+
+    return text.replace(phonePattern, (match, prefix, phone) => {
+        const normalizedPhone = phone.replace(/\D/g, '');
+        return officialPhoneValues.has(normalizedPhone)
+            ? `${prefix}${phone}`
+            : `${prefix}${BLOCKED_PHONE_MESSAGE}`;
+    });
+}
+
+function sanitizeRescuerGuidance(analysis) {
+    return {
+        ...analysis,
+        hanh_dong_de_xuat: analysis.hanh_dong_de_xuat.map(sanitizePhoneNumbers)
+    };
 }
 
 function extractLinks(text) {
@@ -228,18 +260,18 @@ function renderAnalysis(originalText, analysis, psychologyNote = null) {
         : '';
 
     resultDiv.innerHTML = `
+        <div class="risk-badge risk-${analysis.mau_sac}" role="status">
+            Mức độ rủi ro: ${escapeHtml(analysis.muc_do_rui_ro)}
+        </div>
         <section class="analysis-section technical-analysis">
             <h3>Phân tích kỹ thuật</h3>
-            <div class="risk-badge risk-${analysis.mau_sac}">
-                Mức độ rủi ro: ${escapeHtml(analysis.muc_do_rui_ro)}
-            </div>
             ${linkWarningHtml}
             <h4>Nội dung tin nhắn</h4>
-            <div style="line-height:1.6;">${highlightText(originalText, analysis.danh_sach_dau_hieu)}</div>
+            <div class="message-content">${highlightText(originalText, analysis.danh_sach_dau_hieu)}</div>
             <h4>Dấu hiệu cần lưu ý</h4>
             ${signsHtml}
             <h4>Hành động đề xuất</h4>
-            <ol style="font-size:20px; line-height:1.6; padding-left:28px;">${actionsHtml}</ol>
+            <ol class="recommended-actions">${actionsHtml}</ol>
         </section>
         <section class="analysis-section psychology-analysis">
             <h3>Hiểu vì sao mình suýt tin</h3>
@@ -248,43 +280,91 @@ function renderAnalysis(originalText, analysis, psychologyNote = null) {
     `;
 }
 
-function renderPracticeQuestion() {
-    if (practiceIndex >= practiceMessages.length) {
-        practiceScore.textContent = `Hoàn thành: Bác trả lời đúng ${practicePoints}/10 câu.`;
-        practiceQuestion.innerHTML = '<h3>Chúc mừng bác đã hoàn thành!</h3><p>Bác có thể luyện lại để ghi nhớ các dấu hiệu lừa đảo thường gặp.</p>';
-        practiceFeedback.innerHTML = '';
-        practiceScamBtn.classList.add('hidden');
-        practiceSafeBtn.classList.add('hidden');
-        practiceNextBtn.textContent = 'Luyện lại từ đầu';
-        practiceNextBtn.classList.remove('hidden');
-        return;
-    }
+function renderQuestionNavigator() {
+    questionNavigator.innerHTML = practiceMessages.map((_, index) => {
+        const isCurrent = index === practiceIndex;
+        const isAnswered = userAnswers[index] !== null;
+        const stateClass = `${isCurrent ? ' is-current' : ''}${isAnswered ? ' is-answered' : ''}`;
+        return `<button type="button" class="question-number-btn${stateClass}" data-question-index="${index}" aria-current="${isCurrent ? 'step' : 'false'}">${index + 1}</button>`;
+    }).join('');
+}
 
+function renderPracticeQuestion() {
     const item = practiceMessages[practiceIndex];
-    practiceScore.textContent = `Câu ${practiceIndex + 1}/10 · Điểm: ${practicePoints}`;
+    const answeredCount = userAnswers.filter(answer => answer !== null).length;
+    const selectedAnswer = userAnswers[practiceIndex];
+
+    practiceScore.textContent = `Câu ${practiceIndex + 1}/10 · Đã chọn đáp án: ${answeredCount}/10`;
     practiceQuestion.innerHTML = `<h3>Tin nhắn</h3><p>${escapeHtml(item.text)}</p><p><strong>Theo bác, đây là tin gì?</strong></p>`;
-    practiceFeedback.innerHTML = '';
     practiceScamBtn.disabled = false;
     practiceSafeBtn.disabled = false;
-    practiceScamBtn.classList.remove('hidden');
-    practiceSafeBtn.classList.remove('hidden');
-    practiceNextBtn.classList.add('hidden');
-    practiceAnswered = false;
+    practiceScamBtn.setAttribute('aria-pressed', String(selectedAnswer === 'Lừa đảo'));
+    practiceSafeBtn.setAttribute('aria-pressed', String(selectedAnswer === 'An toàn'));
+    previousQuestionBtn.disabled = practiceIndex === 0;
+    nextQuestionBtn.disabled = practiceIndex === practiceMessages.length - 1;
+    submitQuizBtn.disabled = answeredCount !== practiceMessages.length;
+    renderQuestionNavigator();
+}
+
+function goToQuestion(index) {
+    if (quizSubmitted || index < 0 || index >= practiceMessages.length) return;
+    practiceIndex = index;
+    renderPracticeQuestion();
 }
 
 function answerPractice(answer) {
-    if (practiceAnswered || practiceIndex >= practiceMessages.length) return;
+    if (quizSubmitted) return;
+    userAnswers[practiceIndex] = answer;
+    renderPracticeQuestion();
+}
 
-    practiceAnswered = true;
-    const item = practiceMessages[practiceIndex];
-    const isCorrect = answer === item.label;
-    if (isCorrect) practicePoints += 1;
+function submitQuiz() {
+    if (userAnswers.some(answer => answer === null)) return;
 
-    practiceScamBtn.disabled = true;
-    practiceSafeBtn.disabled = true;
-    practiceFeedback.innerHTML = `<strong>${isCorrect ? 'Đúng rồi!' : 'Chưa đúng.'}</strong> Đáp án: ${escapeHtml(item.label)}.<br>${escapeHtml(item.explanation)}`;
-    practiceNextBtn.textContent = practiceIndex === practiceMessages.length - 1 ? 'Xem tổng điểm' : 'Tin tiếp theo';
-    practiceNextBtn.classList.remove('hidden');
+    quizSubmitted = true;
+    const correctCount = userAnswers.reduce((total, answer, index) => (
+        total + Number(answer === practiceMessages[index].label)
+    ), 0);
+    const incorrectCount = practiceMessages.length - correctCount;
+    const missedLessons = practiceMessages
+        .filter((item, index) => userAnswers[index] !== item.label)
+        .map(item => item.explanation)
+        .slice(0, 3)
+        .join(' ');
+    const reviewHtml = practiceMessages.map((item, index) => {
+        const isCorrect = userAnswers[index] === item.label;
+        return `<li class="quiz-review-item ${isCorrect ? 'is-correct' : 'is-incorrect'}">
+            Câu ${index + 1}: ${isCorrect ? 'Đúng' : `Chưa đúng — đáp án: ${escapeHtml(item.label)}`}
+        </li>`;
+    }).join('');
+    const advice = incorrectCount === 0
+        ? 'Cô tâm lý: Bác làm rất tốt. Hãy tiếp tục giữ thói quen dừng lại và kiểm tra trước khi bấm vào liên kết lạ.'
+        : incorrectCount > 3
+            ? `Cô tâm lý: Bác đừng lo, đây là những chiêu thức rất dễ gây nhầm lẫn. Bác nên luyện lại phần này. ${missedLessons}`
+            : `Cô tâm lý: Bác đã nhận ra nhiều dấu hiệu quan trọng. Với những câu còn nhầm, hãy bình tĩnh kiểm tra qua kênh chính thức trước khi làm theo. ${missedLessons}`;
+    const retryHtml = incorrectCount > 3
+        ? '<button type="button" id="retryQuizBtn" class="retry-quiz-btn">Luyện tập lại phần này</button>'
+        : '';
+
+    quizWorkspace.classList.add('hidden');
+    quizResults.classList.remove('hidden');
+    quizResults.innerHTML = `
+        <h3>Kết quả bài kiểm tra</h3>
+        <p class="quiz-score-summary">Bác đạt ${correctCount}/${practiceMessages.length} câu đúng</p>
+        <ul class="quiz-review-list">${reviewHtml}</ul>
+        <p class="quiz-advice">${advice}</p>
+        ${retryHtml}
+    `;
+}
+
+function resetQuiz() {
+    practiceIndex = 0;
+    userAnswers.fill(null);
+    quizSubmitted = false;
+    quizResults.classList.add('hidden');
+    quizResults.innerHTML = '';
+    quizWorkspace.classList.remove('hidden');
+    renderPracticeQuestion();
 }
 
 function openPractice() {
@@ -292,7 +372,11 @@ function openPractice() {
     practiceSection.classList.remove('hidden');
     openPracticeBtn.classList.add('hidden');
     backToCheckBtn.classList.remove('hidden');
-    renderPracticeQuestion();
+    if (quizSubmitted) {
+        resetQuiz();
+    } else {
+        renderPracticeQuestion();
+    }
 }
 
 function openChecker() {
@@ -357,9 +441,9 @@ historyList.addEventListener('click', event => {
 
     smsInput.value = entry.text;
     resultContainer.classList.remove('hidden');
-    const analysis = parseAIResponse(JSON.stringify(entry.analysis));
+    const analysis = sanitizeRescuerGuidance(parseAIResponse(JSON.stringify(entry.analysis)));
     const psychologyNote = typeof entry.psychologyNote === 'string'
-        ? entry.psychologyNote
+        ? sanitizePhoneNumbers(entry.psychologyNote)
         : (analysis.muc_do_rui_ro === 'An toàn' ? null : PSYCHOLOGY_BUSY_MESSAGE);
     renderAnalysis(entry.text, analysis, psychologyNote);
     window.scrollTo({ top: resultContainer.offsetTop - 16, behavior: 'smooth' });
@@ -369,14 +453,15 @@ openPracticeBtn.addEventListener('click', openPractice);
 backToCheckBtn.addEventListener('click', openChecker);
 practiceScamBtn.addEventListener('click', () => answerPractice('Lừa đảo'));
 practiceSafeBtn.addEventListener('click', () => answerPractice('An toàn'));
-practiceNextBtn.addEventListener('click', () => {
-    if (practiceIndex >= practiceMessages.length) {
-        practiceIndex = 0;
-        practicePoints = 0;
-    } else {
-        practiceIndex += 1;
-    }
-    renderPracticeQuestion();
+questionNavigator.addEventListener('click', event => {
+    const button = event.target.closest('[data-question-index]');
+    if (button) goToQuestion(Number(button.dataset.questionIndex));
+});
+previousQuestionBtn.addEventListener('click', () => goToQuestion(practiceIndex - 1));
+nextQuestionBtn.addEventListener('click', () => goToQuestion(practiceIndex + 1));
+submitQuizBtn.addEventListener('click', submitQuiz);
+quizResults.addEventListener('click', event => {
+    if (event.target.closest('#retryQuizBtn')) resetQuiz();
 });
 
 checkBtn.addEventListener('click', async () => {
@@ -418,7 +503,7 @@ checkBtn.addEventListener('click', async () => {
             throw new Error('AI không trả về nội dung phân tích.');
         }
 
-        const analysis = parseAIResponse(responseText);
+        const analysis = sanitizeRescuerGuidance(parseAIResponse(responseText));
         let psychologyNote = null;
 
         if (analysis.muc_do_rui_ro === 'Nghi ngờ' || analysis.muc_do_rui_ro === 'Nguy hiểm') {
@@ -428,7 +513,7 @@ checkBtn.addEventListener('click', async () => {
                     contents: `Tin nhắn gốc:\n${text}\n\nKết quả phân tích kỹ thuật của Thám tử:\n${JSON.stringify(analysis)}`,
                     config: { systemInstruction: psychologyInstruction }
                 });
-                psychologyNote = psychologyResponse.text?.trim();
+                psychologyNote = sanitizePhoneNumbers(psychologyResponse.text?.trim());
                 if (!psychologyNote) {
                     throw new Error('Cô tâm lý không trả về nội dung.');
                 }

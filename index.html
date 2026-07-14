@@ -6,102 +6,15 @@
     <title>ScamCheck - Kiểm tra lừa đảo</title>
     <link rel="stylesheet" href="style.css">
 
-    <style>
-        * {
-            box-sizing: border-box;
-        }
-
-        body {
-            margin: 0;
-            font-size: 18px;
-            font-family: Arial, sans-serif;
-            background: #f3f4f6;
-            color: #111827;
-        }
-
-        main {
-            width: 100%;
-            max-width: 42rem;
-            margin: 0 auto;
-            padding: 1rem;
-        }
-
-        h1 {
-            margin: 1.5rem 0;
-            color: #1e40af;
-            font-size: 1.875rem;
-            text-align: center;
-        }
-
-        .card, #result {
-            padding: 1.5rem;
-            border-radius: 0.5rem;
-            background: #fff;
-            box-shadow: 0 1px 3px rgb(0 0 0 / 15%);
-        }
-
-        label, h2 {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 700;
-        }
-
-        textarea, button {
-            width: 100%;
-            font: inherit;
-        }
-
-        textarea {
-            min-height: 9rem;
-            margin-bottom: 1rem;
-            padding: 1rem;
-            border: 1px solid #9ca3af;
-            border-radius: 0.5rem;
-        }
-
-        textarea:focus {
-            outline: 2px solid #3b82f6;
-            border-color: transparent;
-        }
-
-        button {
-            padding: 1rem;
-            border: 0;
-            border-radius: 0.5rem;
-            background: #2563eb;
-            color: #fff;
-            font-weight: 700;
-            font-size: 20px;
-            cursor: pointer;
-        }
-
-        button:hover { background: #1d4ed8; }
-        button:disabled { background: #93c5fd; cursor: wait; }
-        #resultContainer { margin-top: 2rem; }
-        #result { border-left: 4px solid #3b82f6; white-space: pre-wrap; }
-        footer {
-            max-width: 42rem;
-            margin: 2.5rem auto 0;
-            padding: 1rem;
-            border-top: 1px solid #d1d5db;
-            color: #6b7280;
-            font-size: 0.875rem;
-            text-align: center;
-        }
-
-        .hidden { display: none; }
-    </style>
 </head>
 
 <body>
     <main>
-        <h1>ScamCheck</h1>
-
-        <label for="apiKey">Gemini API Key:</label>
-        <textarea
-            id="apiKey"
-            placeholder="fuck you bitch"
-        ></textarea>
+        <header class="site-header">
+            <p class="eyebrow">Hỗ trợ kiểm tra tin nhắn</p>
+            <h1>ScamCheck</h1>
+            <p>Nhận diện dấu hiệu lừa đảo một cách rõ ràng, dễ hiểu.</p>
+        </header>
 
         <nav class="mode-navigation" aria-label="Chuyển chế độ">
             <button type="button" id="openPracticeBtn">Vào phòng luyện tập</button>
@@ -109,7 +22,15 @@
         </nav>
 
         <section id="checkerSection">
-        <div class="card">
+        <section class="unit unit-checker" aria-labelledby="checkerTitle">
+            <header class="unit-header">
+                <span class="unit-icon" aria-hidden="true">🔎</span>
+                <div>
+                    <p class="unit-kicker">Phần 1</p>
+                    <h2 id="checkerTitle">Kiểm tra tin nhắn</h2>
+                </div>
+            </header>
+            <div class="unit-content">
             <div class="sample-messages" aria-label="Tin nhắn mẫu">
                 <p>Chọn một tin mẫu để thử:</p>
                 <div class="sample-buttons">
@@ -135,38 +56,63 @@
                 <span class="spinner" aria-hidden="true"></span>
                 Đang phân tích tin nhắn, vui lòng chờ...
             </div>
-        </div>
+            </div>
 
-        <div id="resultContainer" class="hidden">
-            <h2>Kết quả phân tích:</h2>
-            <div id="result"></div>
-        </div>
+            <div id="resultContainer" class="result-card hidden" aria-live="polite">
+                <h3>Kết quả phân tích:</h3>
+                <div id="result"></div>
+            </div>
+        </section>
 
-        <section id="historySection" class="history-section" aria-labelledby="historyTitle">
-            <h2 id="historyTitle">Lịch sử kiểm tra</h2>
-            <div id="historyList" class="history-list">
-                <p>Chưa có lịch sử kiểm tra.</p>
+        <section id="historySection" class="unit unit-history" aria-labelledby="historyTitle">
+            <header class="unit-header">
+                <span class="unit-icon" aria-hidden="true">🛡️</span>
+                <div>
+                    <p class="unit-kicker">Phần 3</p>
+                    <h2 id="historyTitle">Lịch sử bảo vệ</h2>
+                </div>
+            </header>
+            <div class="unit-content">
+                <div id="historyList" class="history-list">
+                    <p>Chưa có lịch sử kiểm tra.</p>
+                </div>
             </div>
         </section>
         </section>
 
-        <section id="practiceSection" class="hidden" aria-labelledby="practiceTitle">
-            <div class="card practice-card">
-                <h2 id="practiceTitle">Phòng luyện tập nhận diện lừa đảo</h2>
-                <p id="practiceScore" class="practice-score" aria-live="polite"></p>
-                <div id="practiceQuestion" class="practice-question"></div>
-                <div id="practiceChoices" class="practice-choices">
-                    <button type="button" id="practiceScamBtn" class="practice-scam-btn">Lừa đảo</button>
-                    <button type="button" id="practiceSafeBtn" class="practice-safe-btn">An toàn</button>
+        <section id="practiceSection" class="unit unit-practice hidden" aria-labelledby="practiceTitle">
+            <header class="unit-header">
+                <span class="unit-icon" aria-hidden="true">🎯</span>
+                <div>
+                    <p class="unit-kicker">Phần 2</p>
+                    <h2 id="practiceTitle">Luyện tập kỹ năng</h2>
                 </div>
-                <div id="practiceFeedback" class="practice-feedback" aria-live="polite"></div>
-                <button type="button" id="practiceNextBtn" class="hidden">Tin tiếp theo</button>
+            </header>
+            <div class="unit-content practice-card">
+                <div id="quizWorkspace">
+                    <div class="question-navigation" aria-labelledby="questionNavigationTitle">
+                        <p id="questionNavigationTitle">Chọn câu hỏi</p>
+                        <div id="questionNavigator" class="question-number-list" aria-label="Điều hướng câu hỏi"></div>
+                    </div>
+                    <p id="practiceScore" class="practice-score" aria-live="polite"></p>
+                    <div id="practiceQuestion" class="practice-question"></div>
+                    <div id="practiceChoices" class="practice-choices">
+                        <button type="button" id="practiceScamBtn" class="practice-scam-btn">Lừa đảo</button>
+                        <button type="button" id="practiceSafeBtn" class="practice-safe-btn">An toàn</button>
+                    </div>
+                    <div class="quiz-move-controls">
+                        <button type="button" id="previousQuestionBtn" class="secondary-quiz-btn">Câu trước</button>
+                        <button type="button" id="nextQuestionBtn" class="secondary-quiz-btn">Câu sau</button>
+                    </div>
+                    <button type="button" id="submitQuizBtn" class="submit-quiz-btn" disabled>Nộp bài và xem kết quả</button>
+                </div>
+                <section id="quizResults" class="quiz-results hidden" aria-live="polite"></section>
             </div>
         </section>
     </main>
 
     <footer>
-        ScamCheck là công cụ giáo dục do nhóm học viên phát triển, đánh giá của ứng dụng không thay thế cảnh báo chính thức từ ngân hàng hoặc cơ quan chức năng. Khi nghi ngờ, người dùng nên gọi tổng đài chính thức in trên thẻ.
+        ScamCheck là công cụ giáo dục và không thay thế cảnh báo từ ngân hàng hoặc cơ quan chức năng.
     </footer>
 
     <script src="config.js"></script>
