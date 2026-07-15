@@ -8,8 +8,10 @@ const loadingIndicator = document.getElementById('loadingIndicator');
 const historyList = document.getElementById('historyList');
 const checkerSection = document.getElementById('checkerSection');
 const practiceSection = document.getElementById('practiceSection');
-const openPracticeBtn = document.getElementById('openPracticeBtn');
-const backToCheckBtn = document.getElementById('backToCheckBtn');
+const historySection = document.getElementById('historySection');
+const categoryButtons = document.querySelectorAll('.category-btn');
+const pageTitle = document.getElementById('pageTitle');
+const brandHome = document.getElementById('brandHome');
 const practiceScore = document.getElementById('practiceScore');
 const practiceQuestion = document.getElementById('practiceQuestion');
 const practiceScamBtn = document.getElementById('practiceScamBtn');
@@ -367,23 +369,30 @@ function resetQuiz() {
     renderPracticeQuestion();
 }
 
-function openPractice() {
-    checkerSection.classList.add('hidden');
-    practiceSection.classList.remove('hidden');
-    openPracticeBtn.classList.add('hidden');
-    backToCheckBtn.classList.remove('hidden');
-    if (quizSubmitted) {
-        resetQuiz();
-    } else {
-        renderPracticeQuestion();
-    }
-}
+const viewConfig = {
+    checkerSection: { title: 'Kiểm tra tin nhắn', hash: 'kiem-tra' },
+    practiceSection: { title: 'Luyện tập kỹ năng', hash: 'luyen-tap' },
+    historySection: { title: 'Lịch sử kiểm tra', hash: 'lich-su' }
+};
 
-function openChecker() {
-    practiceSection.classList.add('hidden');
-    checkerSection.classList.remove('hidden');
-    backToCheckBtn.classList.add('hidden');
-    openPracticeBtn.classList.remove('hidden');
+function showView(viewId, updateHash = true) {
+    if (!viewConfig[viewId]) return;
+
+    [checkerSection, practiceSection, historySection].forEach(section => {
+        section.classList.toggle('hidden', section.id !== viewId);
+    });
+    categoryButtons.forEach(button => {
+        const isActive = button.dataset.view === viewId;
+        button.classList.toggle('is-active', isActive);
+        if (isActive) button.setAttribute('aria-current', 'page');
+        else button.removeAttribute('aria-current');
+    });
+    pageTitle.textContent = viewConfig[viewId].title;
+
+    if (viewId === 'practiceSection' && !quizSubmitted) renderPracticeQuestion();
+    if (viewId === 'historySection') renderHistory();
+    if (updateHash) history.replaceState(null, '', `#${viewConfig[viewId].hash}`);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 function getHistory() {
@@ -439,6 +448,7 @@ historyList.addEventListener('click', event => {
     const entry = getHistory()[Number(button.dataset.historyIndex)];
     if (!entry || typeof entry.text !== 'string') return;
 
+    showView('checkerSection');
     smsInput.value = entry.text;
     resultContainer.classList.remove('hidden');
     const analysis = sanitizeRescuerGuidance(parseAIResponse(JSON.stringify(entry.analysis)));
@@ -449,8 +459,13 @@ historyList.addEventListener('click', event => {
     window.scrollTo({ top: resultContainer.offsetTop - 16, behavior: 'smooth' });
 });
 
-openPracticeBtn.addEventListener('click', openPractice);
-backToCheckBtn.addEventListener('click', openChecker);
+categoryButtons.forEach(button => {
+    button.addEventListener('click', () => showView(button.dataset.view));
+});
+brandHome.addEventListener('click', event => {
+    event.preventDefault();
+    showView('checkerSection');
+});
 practiceScamBtn.addEventListener('click', () => answerPractice('Lừa đảo'));
 practiceSafeBtn.addEventListener('click', () => answerPractice('An toàn'));
 questionNavigator.addEventListener('click', event => {
@@ -534,4 +549,7 @@ checkBtn.addEventListener('click', async () => {
     }
 });
 
+const initialView = Object.entries(viewConfig)
+    .find(([, config]) => config.hash === window.location.hash.slice(1))?.[0] || 'checkerSection';
+showView(initialView, false);
 renderHistory();

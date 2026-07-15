@@ -3,117 +3,148 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#f7f9fc">
     <title>ScamCheck - Kiểm tra lừa đảo</title>
     <link rel="stylesheet" href="style.css">
-
 </head>
-
 <body>
-    <main>
-        <header class="site-header">
-            <p class="eyebrow">Hỗ trợ kiểm tra tin nhắn</p>
-            <h1>ScamCheck</h1>
-            <p>Nhận diện dấu hiệu lừa đảo một cách rõ ràng, dễ hiểu.</p>
-        </header>
+    <div class="app-shell">
+        <aside class="sidebar">
+            <a id="brandHome" class="brand" href="#kiem-tra" aria-label="ScamCheck - Trang chính">
+                <span class="brand-mark" aria-hidden="true">S</span>
+                <span><strong>ScamCheck</strong><small>Lá chắn số của bạn</small></span>
+            </a>
 
-        <nav class="mode-navigation" aria-label="Chuyển chế độ">
-            <button type="button" id="openPracticeBtn">Vào phòng luyện tập</button>
-            <button type="button" id="backToCheckBtn" class="hidden">Quay lại kiểm tra tin</button>
-        </nav>
+            <nav class="category-navigation" aria-label="Danh mục chính">
+                <p class="nav-label">Danh mục</p>
+                <button type="button" class="category-btn is-active" data-view="checkerSection" aria-current="page">
+                    <span class="category-icon" aria-hidden="true">⌕</span>
+                    <span><strong>Kiểm tra tin</strong><small>Phân tích nội dung đáng ngờ</small></span>
+                </button>
+                <button type="button" class="category-btn" data-view="practiceSection">
+                    <span class="category-icon" aria-hidden="true">✓</span>
+                    <span><strong>Luyện tập</strong><small>Nhận biết các chiêu trò</small></span>
+                </button>
+                <button type="button" class="category-btn" data-view="historySection">
+                    <span class="category-icon" aria-hidden="true">↶</span>
+                    <span><strong>Lịch sử</strong><small>Xem lại kết quả đã lưu</small></span>
+                </button>
+            </nav>
 
-        <section id="checkerSection">
-        <section class="unit unit-checker" aria-labelledby="checkerTitle">
-            <header class="unit-header">
-                <span class="unit-icon" aria-hidden="true">🔎</span>
+            <div class="sidebar-tip">
+                <span aria-hidden="true">🛡️</span>
+                <p><strong>Nguyên tắc an toàn</strong>Không cung cấp mã OTP cho bất kỳ ai.</p>
+            </div>
+        </aside>
+
+        <div class="main-column">
+            <header class="topbar">
                 <div>
-                    <p class="unit-kicker">Phần 1</p>
-                    <h2 id="checkerTitle">Kiểm tra tin nhắn</h2>
+                    <p class="eyebrow">Trợ lý an toàn số</p>
+                    <h1 id="pageTitle">Kiểm tra tin nhắn</h1>
                 </div>
+                <div class="safety-status"><span></span> Hệ thống sẵn sàng</div>
             </header>
-            <div class="unit-content">
-            <div class="sample-messages" aria-label="Tin nhắn mẫu">
-                <p>Chọn một tin mẫu để thử:</p>
-                <div class="sample-buttons">
-                    <button type="button" class="sample-btn" data-sample="bank">Giả mạo Ngân hàng</button>
-                    <button type="button" class="sample-btn" data-sample="police">Giả mạo Công an</button>
-                    <button type="button" class="sample-btn" data-sample="prize">Thông báo trúng thưởng</button>
-                </div>
-            </div>
 
-            <label for="smsInput">Dán nội dung tin nhắn vào đây:</label>
-            <textarea
-                id="smsInput"
-                rows="6"
-                placeholder="Ví dụ: Chúc mừng bạn đã trúng thưởng 50 triệu đồng..."
-            ></textarea>
-
-            <button
-                type="button"
-                id="checkBtn"
-            >Kiểm tra ngay</button>
-
-            <div id="loadingIndicator" class="loading-indicator hidden" role="status" aria-live="polite">
-                <span class="spinner" aria-hidden="true"></span>
-                Đang phân tích tin nhắn, vui lòng chờ...
-            </div>
-            </div>
-
-            <div id="resultContainer" class="result-card hidden" aria-live="polite">
-                <h3>Kết quả phân tích:</h3>
-                <div id="result"></div>
-            </div>
-        </section>
-
-        <section id="historySection" class="unit unit-history" aria-labelledby="historyTitle">
-            <header class="unit-header">
-                <span class="unit-icon" aria-hidden="true">🛡️</span>
-                <div>
-                    <p class="unit-kicker">Phần 3</p>
-                    <h2 id="historyTitle">Lịch sử bảo vệ</h2>
-                </div>
-            </header>
-            <div class="unit-content">
-                <div id="historyList" class="history-list">
-                    <p>Chưa có lịch sử kiểm tra.</p>
-                </div>
-            </div>
-        </section>
-        </section>
-
-        <section id="practiceSection" class="unit unit-practice hidden" aria-labelledby="practiceTitle">
-            <header class="unit-header">
-                <span class="unit-icon" aria-hidden="true">🎯</span>
-                <div>
-                    <p class="unit-kicker">Phần 2</p>
-                    <h2 id="practiceTitle">Luyện tập kỹ năng</h2>
-                </div>
-            </header>
-            <div class="unit-content practice-card">
-                <div id="quizWorkspace">
-                    <div class="question-navigation" aria-labelledby="questionNavigationTitle">
-                        <p id="questionNavigationTitle">Chọn câu hỏi</p>
-                        <div id="questionNavigator" class="question-number-list" aria-label="Điều hướng câu hỏi"></div>
+            <main>
+                <section id="checkerSection" class="view-section" aria-labelledby="checkerTitle">
+                    <div class="welcome-panel">
+                        <div>
+                            <span class="section-tag">Kiểm tra nhanh</span>
+                            <h2 id="checkerTitle">Tin nhắn này có an toàn không?</h2>
+                            <p>Dán nội dung bạn nghi ngờ. ScamCheck sẽ chỉ ra dấu hiệu rủi ro và gợi ý cách xử lý an toàn.</p>
+                        </div>
+                        <div class="shield-visual" aria-hidden="true">✓</div>
                     </div>
-                    <p id="practiceScore" class="practice-score" aria-live="polite"></p>
-                    <div id="practiceQuestion" class="practice-question"></div>
-                    <div id="practiceChoices" class="practice-choices">
-                        <button type="button" id="practiceScamBtn" class="practice-scam-btn">Lừa đảo</button>
-                        <button type="button" id="practiceSafeBtn" class="practice-safe-btn">An toàn</button>
-                    </div>
-                    <div class="quiz-move-controls">
-                        <button type="button" id="previousQuestionBtn" class="secondary-quiz-btn">Câu trước</button>
-                        <button type="button" id="nextQuestionBtn" class="secondary-quiz-btn">Câu sau</button>
-                    </div>
-                    <button type="button" id="submitQuizBtn" class="submit-quiz-btn" disabled>Nộp bài và xem kết quả</button>
-                </div>
-                <section id="quizResults" class="quiz-results hidden" aria-live="polite"></section>
-            </div>
-        </section>
-    </main>
 
-    <footer>
-        ScamCheck là công cụ giáo dục và không thay thế cảnh báo từ ngân hàng hoặc cơ quan chức năng.
-    </footer>
+                    <div class="checker-grid">
+                        <section class="content-card input-card" aria-labelledby="inputTitle">
+                            <div class="card-heading">
+                                <div><span class="step-number">1</span><h3 id="inputTitle">Nhập nội dung</h3></div>
+                                <span class="privacy-note">Không lưu thông tin cá nhân</span>
+                            </div>
+
+                            <label for="smsInput">Nội dung tin nhắn cần kiểm tra</label>
+                            <textarea id="smsInput" rows="7" maxlength="5000" placeholder="Dán tin nhắn, email hoặc nội dung đáng ngờ vào đây..."></textarea>
+
+                            <div class="sample-messages" aria-label="Tin nhắn mẫu">
+                                <p>Hoặc thử với tình huống mẫu:</p>
+                                <div class="sample-buttons">
+                                    <button type="button" class="sample-btn" data-sample="bank">🏦 Giả mạo ngân hàng</button>
+                                    <button type="button" class="sample-btn" data-sample="police">👮 Giả mạo công an</button>
+                                    <button type="button" class="sample-btn" data-sample="prize">🎁 Báo trúng thưởng</button>
+                                </div>
+                            </div>
+
+                            <button type="button" id="checkBtn" class="primary-action"><span aria-hidden="true">⌕</span> Phân tích ngay</button>
+                            <div id="loadingIndicator" class="loading-indicator hidden" role="status" aria-live="polite">
+                                <span class="spinner" aria-hidden="true"></span>Đang phân tích tin nhắn, vui lòng chờ...
+                            </div>
+                        </section>
+
+                        <aside class="content-card guide-card" aria-labelledby="guideTitle">
+                            <span class="step-number">?</span>
+                            <h3 id="guideTitle">Dấu hiệu cần cảnh giác</h3>
+                            <ul class="warning-list">
+                                <li><span>!</span><div><strong>Thúc giục khẩn cấp</strong><small>Ép chuyển tiền hoặc xử lý ngay</small></div></li>
+                                <li><span>⌁</span><div><strong>Đường link lạ</strong><small>Tên miền sai hoặc khó nhận biết</small></div></li>
+                                <li><span>•••</span><div><strong>Hỏi thông tin bí mật</strong><small>Yêu cầu OTP, mật khẩu, số thẻ</small></div></li>
+                                <li><span>₫</span><div><strong>Hứa hẹn tiền thưởng</strong><small>Yêu cầu đóng phí để nhận quà</small></div></li>
+                            </ul>
+                            <p class="guide-footer">Khi chưa chắc chắn, hãy dừng lại và gọi người thân hoặc đơn vị chính thức.</p>
+                        </aside>
+                    </div>
+
+                    <section id="resultContainer" class="content-card result-card hidden" aria-live="polite">
+                        <div class="card-heading"><div><span class="step-number">2</span><h3>Kết quả phân tích</h3></div></div>
+                        <div id="result"></div>
+                    </section>
+                </section>
+
+                <section id="practiceSection" class="view-section hidden" aria-labelledby="practiceTitle">
+                    <div class="section-intro">
+                        <span class="section-tag blue">Luyện tập kỹ năng</span>
+                        <h2 id="practiceTitle">Bạn có nhận ra tin nhắn lừa đảo?</h2>
+                        <p>Hoàn thành 10 tình huống ngắn để hình thành thói quen nhận diện rủi ro.</p>
+                    </div>
+                    <div class="content-card practice-card">
+                        <div id="quizWorkspace">
+                            <div class="question-navigation" aria-labelledby="questionNavigationTitle">
+                                <p id="questionNavigationTitle">Tiến độ bài tập</p>
+                                <div id="questionNavigator" class="question-number-list" aria-label="Điều hướng câu hỏi"></div>
+                            </div>
+                            <p id="practiceScore" class="practice-score" aria-live="polite"></p>
+                            <div id="practiceQuestion" class="practice-question"></div>
+                            <div id="practiceChoices" class="practice-choices">
+                                <button type="button" id="practiceScamBtn" class="practice-scam-btn">Lừa đảo</button>
+                                <button type="button" id="practiceSafeBtn" class="practice-safe-btn">An toàn</button>
+                            </div>
+                            <div class="quiz-move-controls">
+                                <button type="button" id="previousQuestionBtn" class="secondary-quiz-btn">← Câu trước</button>
+                                <button type="button" id="nextQuestionBtn" class="secondary-quiz-btn">Câu sau →</button>
+                            </div>
+                            <button type="button" id="submitQuizBtn" class="submit-quiz-btn" disabled>Nộp bài và xem kết quả</button>
+                        </div>
+                        <section id="quizResults" class="quiz-results hidden" aria-live="polite"></section>
+                    </div>
+                </section>
+
+                <section id="historySection" class="view-section hidden" aria-labelledby="historyTitle">
+                    <div class="section-intro">
+                        <span class="section-tag orange">Nhật ký bảo vệ</span>
+                        <h2 id="historyTitle">Lịch sử kiểm tra</h2>
+                        <p>Xem lại tối đa 10 tin nhắn gần nhất và kết quả đã phân tích.</p>
+                    </div>
+                    <div class="content-card history-card">
+                        <div class="history-heading"><h3>Các lần kiểm tra gần đây</h3><span>Dữ liệu chỉ lưu trên thiết bị này</span></div>
+                        <div id="historyList" class="history-list"><p class="empty-state">Chưa có lịch sử kiểm tra.</p></div>
+                    </div>
+                </section>
+            </main>
+
+            <footer>ScamCheck là công cụ giáo dục và không thay thế cảnh báo từ ngân hàng hoặc cơ quan chức năng.</footer>
+        </div>
+    </div>
 
     <script src="config.js"></script>
     <script type="module" src="app.js"></script>
