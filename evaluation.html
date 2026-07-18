@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ScamCheck - Đánh giá 60 tin</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="evaluation-page">
+    <main>
+        <div class="content-card evaluation-card">
+            <p class="eyebrow">Công cụ nội bộ</p>
+            <h1>Đánh giá chất lượng Thám tử trên 60 tin</h1>
+            <p>Trang này gọi Gemini một lần cho mỗi mẫu. Chỉ chạy khi cần đo chất lượng và đã kiểm tra hạn mức API.</p>
+            <button type="button" id="runEvaluationBtn" class="primary-action">Chạy đánh giá 60 tin</button>
+            <button type="button" id="downloadEvaluationBtn" class="utility-btn hidden">Tải báo cáo JSON</button>
+            <p id="evaluationProgress" aria-live="polite">Chưa chạy.</p>
+            <div id="evaluationSummary"></div>
+            <div class="evaluation-table-wrap"><table id="evaluationTable"></table></div>
+        </div>
+    </main>
+    <script src="config.js"></script>
+    <script src="evaluation-dataset.js"></script>
+    <script type="module" src="evaluation.js"></script>
+</body>
+</html>

@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#f7f9fc">
+    <link rel="icon" href="favicon.svg" type="image/svg+xml">
     <title>ScamCheck - Kiểm tra lừa đảo</title>
     <link rel="stylesheet" href="style.css">
 </head>
@@ -29,6 +30,10 @@
                     <span class="category-icon" aria-hidden="true">↶</span>
                     <span><strong>Lịch sử</strong><small>Xem lại kết quả đã lưu</small></span>
                 </button>
+                <button type="button" class="category-btn" data-view="librarySection">
+                    <span class="category-icon" aria-hidden="true">▤</span>
+                    <span><strong>Thư viện</strong><small>12 kiểu lừa đảo phổ biến</small></span>
+                </button>
             </nav>
 
             <div class="sidebar-tip">
@@ -43,7 +48,12 @@
                     <p class="eyebrow">Trợ lý an toàn số</p>
                     <h1 id="pageTitle">Kiểm tra tin nhắn</h1>
                 </div>
-                <div class="safety-status"><span></span> Hệ thống sẵn sàng</div>
+                <div class="topbar-tools">
+                    <span id="aiUsage" class="ai-usage" aria-live="polite">AI: 0/12 lượt</span>
+                    <button type="button" id="fontSizeBtn" class="utility-btn" aria-pressed="false">Chữ lớn</button>
+                    <button type="button" id="contrastBtn" class="utility-btn" aria-pressed="false">Tương phản cao</button>
+                    <div class="safety-status"><span></span> Hệ thống sẵn sàng</div>
+                </div>
             </header>
 
             <main>
@@ -66,6 +76,8 @@
 
                             <label for="smsInput">Nội dung tin nhắn cần kiểm tra</label>
                             <textarea id="smsInput" rows="7" maxlength="5000" placeholder="Dán tin nhắn, email hoặc nội dung đáng ngờ vào đây..."></textarea>
+                            <button type="button" id="voiceBtn" class="voice-btn" aria-pressed="false">🎙 Nhập bằng giọng nói</button>
+                            <p id="voiceStatus" class="assistive-status" aria-live="polite"></p>
 
                             <div class="sample-messages" aria-label="Tin nhắn mẫu">
                                 <p>Hoặc thử với tình huống mẫu:</p>
@@ -136,8 +148,22 @@
                         <p>Xem lại tối đa 10 tin nhắn gần nhất và kết quả đã phân tích.</p>
                     </div>
                     <div class="content-card history-card">
-                        <div class="history-heading"><h3>Các lần kiểm tra gần đây</h3><span>Dữ liệu chỉ lưu trên thiết bị này</span></div>
+                        <div class="history-heading"><div><h3>Các lần kiểm tra gần đây</h3><span>Dữ liệu chỉ lưu trên thiết bị này</span></div><button type="button" id="clearHistoryBtn" class="danger-outline-btn">Xoá toàn bộ</button></div>
                         <div id="historyList" class="history-list"><p class="empty-state">Chưa có lịch sử kiểm tra.</p></div>
+                        <details class="ai-log-panel"><summary>Nhật ký gọi AI trong phiên</summary><div id="aiLogList" aria-live="polite"></div></details>
+                    </div>
+                </section>
+
+                <section id="librarySection" class="view-section hidden" aria-labelledby="libraryTitle">
+                    <div class="section-intro">
+                        <span class="section-tag blue">Kiến thức phòng tránh</span>
+                        <h2 id="libraryTitle">Thư viện kiểu lừa đảo</h2>
+                        <p>Lọc theo nhóm và bấm vào từng kiểu để xem dấu hiệu cùng cách xử lý.</p>
+                    </div>
+                    <div class="content-card library-card">
+                        <div id="libraryFilters" class="library-filters" aria-label="Lọc kiểu lừa đảo"></div>
+                        <div id="libraryList" class="library-list"></div>
+                        <article id="libraryDetail" class="library-detail hidden" aria-live="polite"></article>
                     </div>
                 </section>
             </main>
@@ -147,6 +173,9 @@
     </div>
 
     <script src="config.js"></script>
+    <script src="verified-hotlines.js"></script>
+    <script src="organization-catalog.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" integrity="sha512-CNgIRecGo7nphbeZ04Sc13ka07paqdeTu0WR1IM4kNcpmBAUSHSQX0FslNhTDadL4O5SAGapGt4FodqL8My0mA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script type="module" src="app.js"></script>
 </body>
 </html>
