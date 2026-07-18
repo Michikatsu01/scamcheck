@@ -546,9 +546,7 @@ function renderAnalysis(originalText, analysis, psychologyNote = null) {
         : '';
 
     resultDiv.innerHTML = `
-        <div class="risk-badge risk-${analysis.mau_sac}" role="status">
-            Mức độ rủi ro: ${escapeHtml(analysis.muc_do_rui_ro)}
-        </div>
+        <div class="risk-badge risk-${analysis.mau_sac}" role="status">Mức độ rủi ro: ${escapeHtml(analysis.muc_do_rui_ro)}</div>
         <section class="analysis-section technical-analysis">
             <h3>Phân tích kỹ thuật</h3>
             ${linkWarningHtml}
