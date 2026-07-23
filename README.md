@@ -4,17 +4,62 @@ ScamCheck là ứng dụng web hỗ trợ người dùng trên 45 tuổi nhận 
 
 ## Chạy trên máy
 
-1. Sao chép `config.example.js` thành `config.js`.
-2. Điền `GEMINI_API_KEY`. Sau khi có URL công khai, điền thêm `PUBLIC_APP_URL` để mã QR dẫn đúng sản phẩm.
-3. Chạy một máy chủ web tĩnh, ví dụ Live Server, rồi mở `index.html`. Không mở trực tiếp bằng `file://`.
+Yêu cầu Python 3.10 trở lên.
 
-`config.js`, `.env*` và `node_modules` đã bị loại khỏi Git. Không chụp màn hình, commit hoặc chia sẻ tệp chứa khoá. Với bản công khai, cần giới hạn API key theo HTTP referrer và quota trong Google Cloud; khoá đặt trong JavaScript phía trình duyệt không thể được coi là bí mật tuyệt đối.
+```powershell
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install -r requirements.txt
+Copy-Item .env.example .env
+```
+
+Điền `GEMINI_API_KEY` vào `.env`. Chạy backend:
+
+```powershell
+python -m backend.app
+```
+
+Ở cửa sổ terminal khác, chạy frontend tĩnh:
+
+```powershell
+python -m http.server 5500
+```
+
+Mở `http://127.0.0.1:5500`. `frontend-config.js` tự dùng Flask tại cổng 5000 khi
+chạy local và dùng Render khi được mở từ GitHub Pages.
+
+Khóa Gemini chỉ được đọc tại backend. Không commit hoặc chia sẻ `.env`. Khi triển
+khai thật, dùng biến môi trường của nền tảng và máy chủ WSGI:
+
+```powershell
+waitress-serve --listen=0.0.0.0:5000 backend.app:app
+```
+
+## Triển khai
+
+### Backend trên Render
+
+1. Trong Render chọn **New > Blueprint** và kết nối repository này.
+2. Render đọc `render.yaml` và tạo service `scamcheck-api-minhkhoitn12345`.
+3. Nhập `GEMINI_API_KEY` khi Render yêu cầu biến bí mật.
+4. Sau deploy, kiểm tra
+   `https://scamcheck-api-minhkhoitn12345.onrender.com/api/health`.
+
+Nếu Render cấp URL khác, sửa `API_BASE_URL` trong `frontend-config.js` rồi push lại.
+
+### Frontend trên GitHub Pages
+
+1. Vào **Settings > Pages** của repository.
+2. Chọn **Source: GitHub Actions**.
+3. Push nhánh `main` hoặc `master`; workflow `pages.yml` chỉ đóng gói frontend.
+
+Origin Pages đã được CORS cho phép là `https://minhkhoitn12345.github.io`.
 
 ## Tính năng đã có mã
 
-- Thám tử trả JSON có schema, streaming, timeout toàn luồng, fallback tối đa hai lần và parser chịu lỗi.
+- Render/Flask giữ khóa, system prompt, schema và model fallback; frontend GitHub Pages nhận luồng NDJSON qua CORS.
 - 12 luật ngoài AI, chống prompt injection, phát hiện URL rút gọn, punycode và tên miền gần giống 10 ngân hàng.
-- Trần 12 lượt AI/phiên, nhật ký phiên, cache tin trùng và lịch sử tối đa 10 tin có xoá từng tin/toàn bộ.
+- Trần 12 lượt AI/phiên, nhật ký phiên, cache tin trùng và lịch sử không giới hạn số bản ghi cố định, có xoá từng tin/toàn bộ.
 - Cô tâm lý 2–3 câu; Người ứng cứu bốn tình huống; chặn số ngoài bảng tổng đài xác minh.
 - Nhập giọng nói, thư viện 12 kiểu, luyện tập 10 câu, chữ lớn và tương phản cao.
 - Ảnh cảnh báo 1080 × 1080 có QR, Web Share và tải PNG.

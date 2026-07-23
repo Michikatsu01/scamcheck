@@ -1,4 +1,3 @@
-<!--skibidi-->
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -76,7 +75,8 @@
                             </div>
 
                             <label for="smsInput">Nội dung tin nhắn cần kiểm tra</label>
-                            <textarea id="smsInput" rows="7" maxlength="5000" placeholder="Dán tin nhắn, email hoặc nội dung đáng ngờ vào đây..."></textarea>
+                            <textarea id="smsInput" rows="7" maxlength="50000" placeholder="Dán tin nhắn, email hoặc nội dung đáng ngờ vào đây..."></textarea>
+                            <p id="wordCount" class="word-count" aria-live="polite">0/50.000 ký tự · 0/5.000 từ</p>
                             <button type="button" id="voiceBtn" class="voice-btn" aria-pressed="false">🎙 Nhập bằng giọng nói</button>
                             <p id="voiceStatus" class="assistive-status" aria-live="polite"></p>
 
@@ -94,6 +94,7 @@
                                 <span class="spinner" aria-hidden="true"></span>Đang phân tích tin nhắn, vui lòng chờ...
                             </div>
                         </section>
+
                     </div>
 
                     <section id="resultContainer" class="content-card result-card hidden" aria-live="polite">
@@ -108,25 +109,52 @@
                         <h2 id="practiceTitle">Bạn có nhận ra tin nhắn lừa đảo?</h2>
                         <p>Hoàn thành 10 tình huống ngắn để hình thành thói quen nhận diện rủi ro.</p>
                     </div>
-                    <div class="content-card practice-card">
+                    <div class="practice-workspace">
                         <div id="quizWorkspace">
-                            <div class="question-navigation" aria-labelledby="questionNavigationTitle">
-                                <p id="questionNavigationTitle">Tiến độ bài tập</p>
-                                <div id="questionNavigator" class="question-number-list" aria-label="Điều hướng câu hỏi"></div>
+                            <div class="quiz-exam-layout">
+                                <section class="content-card quiz-question-panel" aria-labelledby="practiceScore">
+                                    <div class="question-card-heading">
+                                        <div>
+                                            <span class="quiz-kicker">Bài luyện tập</span>
+                                            <h3>Nhận diện tin nhắn lừa đảo</h3>
+                                        </div>
+                                        <p id="practiceScore" class="practice-score" aria-live="polite"></p>
+                                    </div>
+                                    <div id="practiceQuestion" class="practice-question"></div>
+                                    <div id="practiceChoices" class="practice-choices" aria-label="Chọn đáp án">
+                                        <button type="button" id="practiceScamBtn" class="practice-scam-btn"><span class="answer-letter" aria-hidden="true">A</span><span>Lừa đảo</span></button>
+                                        <button type="button" id="practiceSafeBtn" class="practice-safe-btn"><span class="answer-letter" aria-hidden="true">B</span><span>An toàn</span></button>
+                                    </div>
+                                    <div class="quiz-move-controls">
+                                        <button type="button" id="previousQuestionBtn" class="secondary-quiz-btn">← Câu trước</button>
+                                        <button type="button" id="nextQuestionBtn" class="secondary-quiz-btn">Câu sau →</button>
+                                    </div>
+                                </section>
+                                <aside class="content-card question-navigation" aria-labelledby="questionNavigationTitle">
+                                    <div class="question-navigation-heading">
+                                        <div>
+                                            <span class="quiz-kicker">Tiến độ bài tập</span>
+                                            <p id="questionNavigationTitle">Các câu hỏi</p>
+                                        </div>
+                                        <div class="quiz-progress-summary" aria-live="polite">
+                                            <strong id="quizProgressText">0/10</strong>
+                                            <span>đã trả lời</span>
+                                        </div>
+                                    </div>
+                                    <div class="quiz-progress-track" aria-hidden="true">
+                                        <span id="quizProgressBar"></span>
+                                    </div>
+                                    <div id="questionNavigator" class="question-number-list" aria-label="Điều hướng câu hỏi"></div>
+                                    <div class="question-legend" aria-hidden="true">
+                                        <span><i class="legend-current"></i>Đang xem</span>
+                                        <span><i class="legend-answered"></i>Đã trả lời</span>
+                                    </div>
+                                    <button type="button" id="submitQuizBtn" class="submit-quiz-btn" disabled>Nộp bài</button>
+                                    <p id="quizSubmitHint" class="quiz-submit-hint">Trả lời đủ 10 câu để nộp bài.</p>
+                                </aside>
                             </div>
-                            <p id="practiceScore" class="practice-score" aria-live="polite"></p>
-                            <div id="practiceQuestion" class="practice-question"></div>
-                            <div id="practiceChoices" class="practice-choices">
-                                <button type="button" id="practiceScamBtn" class="practice-scam-btn">Lừa đảo</button>
-                                <button type="button" id="practiceSafeBtn" class="practice-safe-btn">An toàn</button>
-                            </div>
-                            <div class="quiz-move-controls">
-                                <button type="button" id="previousQuestionBtn" class="secondary-quiz-btn">← Câu trước</button>
-                                <button type="button" id="nextQuestionBtn" class="secondary-quiz-btn">Câu sau →</button>
-                            </div>
-                            <button type="button" id="submitQuizBtn" class="submit-quiz-btn" disabled>Nộp bài và xem kết quả</button>
                         </div>
-                        <section id="quizResults" class="quiz-results hidden" aria-live="polite"></section>
+                        <section id="quizResults" class="content-card quiz-results hidden" aria-live="polite"></section>
                     </div>
                 </section>
 
@@ -134,7 +162,7 @@
                     <div class="section-intro">
                         <span class="section-tag orange">Nhật ký bảo vệ</span>
                         <h2 id="historyTitle">Lịch sử kiểm tra</h2>
-                        <p>Xem lại tối đa 10 tin nhắn gần nhất và kết quả đã phân tích.</p>
+                        <p>Xem lại toàn bộ tin nhắn đã lưu và kết quả phân tích trên thiết bị này.</p>
                     </div>
                     <div class="content-card history-card">
                         <div class="history-heading"><div><h3>Các lần kiểm tra gần đây</h3><span>Dữ liệu chỉ lưu trên thiết bị này</span></div><button type="button" id="clearHistoryBtn" class="danger-outline-btn">Xoá toàn bộ</button></div>
@@ -161,7 +189,7 @@
         </div>
     </div>
 
-    <script src="config.js"></script>
+    <script src="frontend-config.js"></script>
     <script src="verified-hotlines.js"></script>
     <script src="organization-catalog.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" integrity="sha512-CNgIRecGo7nphbeZ04Sc13ka07paqdeTu0WR1IM4kNcpmBAUSHSQX0FslNhTDadL4O5SAGapGt4FodqL8My0mA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>

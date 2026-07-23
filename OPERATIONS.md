@@ -2,10 +2,11 @@
 
 ## Chạy ứng dụng
 
-1. Sao chép `config.example.js` thành `config.js` và điền Gemini API key.
-2. Mở thư mục bằng một máy chủ web tĩnh; không mở trực tiếp `file://` nếu trình
-   duyệt chặn ES module từ CDN.
-3. Mở `index.html`. Không đưa `config.js` lên kho mã hoặc chia sẻ ảnh chứa khoá.
+1. Tạo môi trường Python và cài các gói trong `requirements.txt`.
+2. Sao chép `.env.example` thành `.env`, rồi điền Gemini API key.
+3. Chạy `python -m backend.app`; ở terminal khác chạy `python -m http.server 5500`.
+4. Mở `http://127.0.0.1:5500`.
+5. Không đưa `.env` lên kho mã hoặc chia sẻ ảnh chứa khoá.
 
 ## Đo chất lượng
 

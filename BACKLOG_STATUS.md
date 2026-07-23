@@ -16,7 +16,7 @@ Ngày đối chiếu: 2026-07-18. Trạng thái “Đã có mã” không thay c
 | L2-02 | Đã có mã | Badge xanh/vàng/đỏ ở đầu kết quả. |
 | L2-03 | Đạt bằng test | Danh sách và tô chuỗi nguyên văn; không tìm thấy thì bỏ qua. |
 | L2-04 | Đã có mã | Parser buộc đúng ba hành động; CSS chữ tối thiểu 18 px. |
-| L2-05 | Đã có mã | `localStorage` tối đa 10; mở lại không gọi Gemini. |
+| L2-05 | Đã có mã | `localStorage` lưu toàn bộ lịch sử không giới hạn số bản ghi cố định; mở lại không gọi Gemini. |
 | L2-06 | Đã có mã | Ba nút mẫu, spinner, trạng thái streaming và khoá nút đúng lúc. |
 | L2-07 | Đạt bằng test | 12 luật gồm link tệp độc và tiêu đề/thân mâu thuẫn. |
 | L2-08 | Cần iPhone/AA | Responsive, focus, 18 px và checklist có mã; cần axe/Lighthouse/VoiceOver thật. |
