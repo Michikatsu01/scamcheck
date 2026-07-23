@@ -433,7 +433,9 @@ def frontend_asset(asset_path: str):
 
 if __name__ == "__main__":
     app.run(
-        host=os.getenv("HOST", "127.0.0.1"),
+        # Render requires the public HTTP server to listen on every interface.
+        # Keep HOST overridable for environments that need a narrower binding.
+        host=os.getenv("HOST", "0.0.0.0"),
         port=int(os.getenv("PORT", "5000")),
         debug=os.getenv("FLASK_DEBUG", "").lower() in {"1", "true", "yes"},
     )

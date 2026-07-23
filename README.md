@@ -19,6 +19,9 @@ Copy-Item .env.example .env
 python -m backend.app
 ```
 
+Máy chủ mặc định lắng nghe trên `0.0.0.0` và dùng biến môi trường `PORT` nếu có,
+do đó cùng lệnh này cũng đáp ứng yêu cầu port binding của Render.
+
 Ở cửa sổ terminal khác, chạy frontend tĩnh:
 
 ```powershell
