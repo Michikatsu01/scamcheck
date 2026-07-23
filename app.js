@@ -784,20 +784,60 @@ async function handleRescueScenario(optionIndex) {
 }
 
 function wrapCanvasText(context, text, x, y, maxWidth, lineHeight, maxLines = 4) {
-    const words = text.split(/\s+/);
+    const words = String(text || '').trim().split(/\s+/).filter(Boolean);
+    const lines = [];
     let line = '';
-    let lines = 0;
-    words.forEach(word => {
-        const candidate = `${line}${word} `;
-        if (context.measureText(candidate).width > maxWidth && line) {
-            if (lines < maxLines) context.fillText(line.trim(), x, y + lines * lineHeight);
-            lines += 1;
-            line = `${word} `;
-        } else {
+    let index = 0;
+
+    while (index < words.length && lines.length < maxLines) {
+        const candidate = line ? `${line} ${words[index]}` : words[index];
+        if (context.measureText(candidate).width <= maxWidth) {
             line = candidate;
+            index += 1;
+            continue;
         }
-    });
-    if (lines < maxLines) context.fillText(line.trim(), x, y + lines * lineHeight);
+        if (line) {
+            lines.push(line);
+            line = '';
+            continue;
+        }
+
+        // Prevent a long URL or uninterrupted token from overflowing its card.
+        let fitted = '';
+        for (const character of words[index]) {
+            if (context.measureText(`${fitted}${character}…`).width > maxWidth) break;
+            fitted += character;
+        }
+        lines.push(`${fitted}…`);
+        index += 1;
+    }
+    if (line && lines.length < maxLines) lines.push(line);
+    if (index < words.length && lines.length) {
+        let lastLine = lines.at(-1).replace(/…$/, '');
+        while (lastLine && context.measureText(`${lastLine}…`).width > maxWidth) {
+            lastLine = lastLine.slice(0, -1);
+        }
+        lines[lines.length - 1] = `${lastLine.trimEnd()}…`;
+    }
+    lines.forEach((item, lineIndex) => context.fillText(item, x, y + lineIndex * lineHeight));
+    return lines.length;
+}
+
+function drawRoundedCanvasRect(context, x, y, width, height, radius, fill, stroke = null) {
+    const safeRadius = Math.min(radius, width / 2, height / 2);
+    context.beginPath();
+    context.moveTo(x + safeRadius, y);
+    context.arcTo(x + width, y, x + width, y + height, safeRadius);
+    context.arcTo(x + width, y + height, x, y + height, safeRadius);
+    context.arcTo(x, y + height, x, y, safeRadius);
+    context.arcTo(x, y, x + width, y, safeRadius);
+    context.closePath();
+    context.fillStyle = fill;
+    context.fill();
+    if (stroke) {
+        context.strokeStyle = stroke;
+        context.stroke();
+    }
 }
 
 function delay(milliseconds) {
@@ -838,7 +878,7 @@ function hasVisibleQrPixels(context, x, y, size) {
     return false;
 }
 
-async function drawShareCardQr(context, productUrl) {
+async function drawShareCardQr(context, productUrl, x = 782, y = 612, size = 206) {
     if (!await ensureQrCodeLibrary()) return false;
 
     const qrHolder = document.createElement('div');
@@ -859,9 +899,9 @@ async function drawShareCardQr(context, productUrl) {
         const qrCanvas = qrHolder.querySelector('canvas');
         if (qrCanvas?.width && qrCanvas?.height) {
             context.imageSmoothingEnabled = false;
-            context.drawImage(qrCanvas, 825, 790, 210, 210);
+            context.drawImage(qrCanvas, x, y, size, size);
             context.imageSmoothingEnabled = true;
-            return hasVisibleQrPixels(context, 825, 790, 210);
+            return hasVisibleQrPixels(context, x, y, size);
         }
 
         const qrImage = qrHolder.querySelector('img');
@@ -877,9 +917,9 @@ async function drawShareCardQr(context, productUrl) {
         }
         if (!qrImage.complete || !qrImage.naturalWidth) return false;
         context.imageSmoothingEnabled = false;
-        context.drawImage(qrImage, 825, 790, 210, 210);
+        context.drawImage(qrImage, x, y, size, size);
         context.imageSmoothingEnabled = true;
-        return hasVisibleQrPixels(context, 825, 790, 210);
+        return hasVisibleQrPixels(context, x, y, size);
     } catch (error) {
         console.warn('Không thể vẽ mã QR lên ảnh tóm tắt:', error);
         return false;
@@ -905,38 +945,134 @@ async function createShareCard() {
     try {
         canvas.width = 1080;
         canvas.height = 1080;
-        context.fillStyle = '#f5f7fb'; context.fillRect(0, 0, 1080, 1080);
-        context.fillStyle = analysis.mau_sac === 'red' ? '#b42318' : analysis.mau_sac === 'yellow' ? '#7a5700' : '#087a55';
-        context.fillRect(0, 0, 1080, 230);
-        context.fillStyle = '#fff'; context.font = 'bold 64px Arial'; context.fillText('ScamCheck', 70, 95);
-        context.font = 'bold 52px Arial'; context.fillText(analysis.muc_do_rui_ro, 70, 180);
-        context.fillStyle = '#10233f'; context.font = 'bold 42px Arial'; context.fillText('Dấu hiệu chính', 70, 310);
-        context.font = '32px Arial';
+        const palette = analysis.mau_sac === 'red'
+            ? { primary: '#B42318', deep: '#7A1D16', soft: '#FFF0EE', accent: '#F97066' }
+            : analysis.mau_sac === 'yellow'
+                ? { primary: '#8A6100', deep: '#5F4300', soft: '#FFF8E1', accent: '#F4C542' }
+                : { primary: '#087A55', deep: '#055C40', soft: '#EAF8F2', accent: '#35B98A' };
+        const ink = '#10233F';
+        const muted = '#53657D';
+        const border = '#DCE5E0';
+        const fontFamily = '"Segoe UI", Arial, sans-serif';
+
+        context.textAlign = 'left';
+        context.textBaseline = 'alphabetic';
+        context.fillStyle = '#F3F6F4';
+        context.fillRect(0, 0, 1080, 1080);
+
+        const headerGradient = context.createLinearGradient(0, 0, 1080, 230);
+        headerGradient.addColorStop(0, palette.deep);
+        headerGradient.addColorStop(1, palette.primary);
+        context.fillStyle = headerGradient;
+        context.fillRect(0, 0, 1080, 225);
+
+        drawRoundedCanvasRect(context, 56, 42, 58, 58, 18, '#FFFFFF');
+        context.fillStyle = palette.primary;
+        context.font = `800 34px ${fontFamily}`;
+        context.textAlign = 'center';
+        context.fillText('S', 85, 83);
+        context.textAlign = 'left';
+        context.fillStyle = '#FFFFFF';
+        context.font = `700 30px ${fontFamily}`;
+        context.fillText('ScamCheck', 132, 79);
+        context.fillStyle = 'rgba(255, 255, 255, 0.82)';
+        context.font = `600 20px ${fontFamily}`;
+        context.fillText('TRỢ LÝ AN TOÀN SỐ', 132, 106);
+
+        drawRoundedCanvasRect(context, 752, 47, 272, 48, 24, 'rgba(255, 255, 255, 0.16)', 'rgba(255, 255, 255, 0.42)');
+        context.fillStyle = '#FFFFFF';
+        context.font = `700 20px ${fontFamily}`;
+        context.textAlign = 'center';
+        context.fillText('KẾT QUẢ PHÂN TÍCH', 888, 79);
+        context.textAlign = 'left';
+        context.font = `800 58px ${fontFamily}`;
+        context.fillText(analysis.muc_do_rui_ro, 56, 178);
+        context.fillStyle = 'rgba(255, 255, 255, 0.9)';
+        context.font = `500 22px ${fontFamily}`;
+        context.fillText('Dừng lại • Kiểm tra • Bảo vệ mình', 56, 207);
+
+        drawRoundedCanvasRect(context, 56, 255, 968, 205, 24, '#FFFFFF', border);
+        drawRoundedCanvasRect(context, 56, 255, 10, 205, 5, palette.accent);
+        context.fillStyle = palette.primary;
+        context.font = `800 21px ${fontFamily}`;
+        context.fillText('DẤU HIỆU CHÍNH', 92, 303);
+        context.fillStyle = ink;
+        context.font = `700 34px ${fontFamily}`;
         const mainSign = analysis.danh_sach_dau_hieu[0]?.mo_ta || 'Không phát hiện dấu hiệu rõ ràng.';
-        wrapCanvasText(context, mainSign, 70, 370, 760, 48, 4);
-        context.font = 'bold 38px Arial'; context.fillText('Việc nên làm ngay', 70, 610);
-        context.font = '30px Arial';
+        wrapCanvasText(context, mainSign, 92, 354, 870, 45, 3);
+
+        drawRoundedCanvasRect(context, 56, 485, 650, 455, 24, '#FFFFFF', border);
+        context.fillStyle = ink;
+        context.font = `800 28px ${fontFamily}`;
+        context.fillText('3 việc nên làm ngay', 88, 535);
+        context.fillStyle = muted;
+        context.font = `500 20px ${fontFamily}`;
+        context.fillText('Ưu tiên theo thứ tự để giảm rủi ro', 88, 566);
+
         analysis.hanh_dong_de_xuat.slice(0, 3).forEach((action, index) => {
-            wrapCanvasText(context, `${index + 1}. ${action}`, 70, 670 + index * 100, 760, 40, 2);
+            const rowTop = 592 + index * 108;
+            if (index > 0) {
+                context.strokeStyle = '#E6ECE8';
+                context.lineWidth = 2;
+                context.beginPath();
+                context.moveTo(88, rowTop - 18);
+                context.lineTo(674, rowTop - 18);
+                context.stroke();
+            }
+            drawRoundedCanvasRect(context, 88, rowTop, 54, 54, 17, palette.soft);
+            context.fillStyle = palette.primary;
+            context.font = `800 25px ${fontFamily}`;
+            context.textAlign = 'center';
+            context.fillText(String(index + 1), 115, rowTop + 36);
+            context.textAlign = 'left';
+            context.fillStyle = ink;
+            context.font = `600 25px ${fontFamily}`;
+            wrapCanvasText(context, action, 164, rowTop + 25, 510, 32, 2);
         });
 
         const productUrl = typeof PUBLIC_APP_URL !== 'undefined' && PUBLIC_APP_URL
             ? PUBLIC_APP_URL
             : `${location.origin}${location.pathname}`;
-        context.fillStyle = '#fff';
-        context.fillRect(800, 765, 260, 290);
-        context.strokeStyle = '#10233f';
-        context.lineWidth = 4;
-        context.strokeRect(800, 765, 260, 290);
-        const qrDrawn = await drawShareCardQr(context, productUrl);
-        context.fillStyle = '#10233f';
+
+        drawRoundedCanvasRect(context, 732, 485, 292, 455, 24, '#FFFFFF', border);
+        context.fillStyle = palette.primary;
+        context.font = `800 20px ${fontFamily}`;
+        context.textAlign = 'center';
+        context.fillText('CHIA SẺ CẢNH BÁO', 878, 530);
+        context.fillStyle = muted;
+        context.font = `500 18px ${fontFamily}`;
+        context.fillText('Quét mã để mở ScamCheck', 878, 560);
+        drawRoundedCanvasRect(context, 756, 582, 244, 244, 18, '#F7FAF8', border);
+        const qrDrawn = await drawShareCardQr(context, productUrl, 775, 601, 206);
+        context.fillStyle = ink;
         if (qrDrawn) {
-            context.font = '22px Arial';
-            context.fillText('Quét để mở ScamCheck', 817, 1035);
+            context.font = `700 20px ${fontFamily}`;
+            context.fillText('Gửi cho người thân', 878, 866);
+            context.fillStyle = muted;
+            context.font = `500 17px ${fontFamily}`;
+            context.fillText('để cùng nhau cảnh giác', 878, 895);
         } else {
-            context.font = '24px Arial';
-            wrapCanvasText(context, productUrl, 820, 825, 220, 32, 6);
+            context.textAlign = 'left';
+            context.font = `600 20px ${fontFamily}`;
+            wrapCanvasText(context, productUrl, 772, 650, 212, 29, 5);
         }
+        context.textAlign = 'left';
+
+        drawRoundedCanvasRect(context, 56, 965, 968, 70, 20, palette.soft);
+        context.fillStyle = palette.primary;
+        context.font = `800 22px ${fontFamily}`;
+        context.fillText('LƯU Ý', 82, 1008);
+        context.fillStyle = ink;
+        context.font = `600 21px ${fontFamily}`;
+        wrapCanvasText(
+            context,
+            'Không chuyển tiền hoặc cung cấp OTP khi chưa kiểm tra qua kênh chính thức.',
+            170,
+            1008,
+            820,
+            28,
+            1
+        );
 
         canvas.classList.remove('hidden');
         createButton?.classList.add('hidden');
