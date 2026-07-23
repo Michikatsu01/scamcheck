@@ -804,8 +804,42 @@ function delay(milliseconds) {
     return new Promise(resolve => window.setTimeout(resolve, milliseconds));
 }
 
+let qrLibraryPromise = null;
+
+async function ensureQrCodeLibrary() {
+    if (typeof window.QRCode === 'function') return true;
+    if (!qrLibraryPromise) {
+        qrLibraryPromise = new Promise(resolve => {
+            const script = document.createElement('script');
+            script.src = 'https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js';
+            script.crossOrigin = 'anonymous';
+            script.referrerPolicy = 'no-referrer';
+            script.onload = () => resolve(typeof window.QRCode === 'function');
+            script.onerror = () => resolve(false);
+            document.head.append(script);
+        });
+    }
+    return Promise.race([qrLibraryPromise, delay(5000).then(() => false)]);
+}
+
+function hasVisibleQrPixels(context, x, y, size) {
+    try {
+        const pixels = context.getImageData(x, y, size, size).data;
+        let darkPixels = 0;
+        for (let index = 0; index < pixels.length; index += 16) {
+            if (pixels[index] < 100 && pixels[index + 1] < 100 && pixels[index + 2] < 100 && pixels[index + 3] > 0) {
+                darkPixels += 1;
+                if (darkPixels >= 20) return true;
+            }
+        }
+    } catch (error) {
+        console.warn('Không thể kiểm tra điểm ảnh QR:', error);
+    }
+    return false;
+}
+
 async function drawShareCardQr(context, productUrl) {
-    if (typeof window.QRCode !== 'function') return false;
+    if (!await ensureQrCodeLibrary()) return false;
 
     const qrHolder = document.createElement('div');
     qrHolder.className = 'qr-render-helper';
@@ -824,8 +858,10 @@ async function drawShareCardQr(context, productUrl) {
         ]);
         const qrCanvas = qrHolder.querySelector('canvas');
         if (qrCanvas?.width && qrCanvas?.height) {
-            context.drawImage(qrCanvas, 840, 820, 190, 190);
-            return true;
+            context.imageSmoothingEnabled = false;
+            context.drawImage(qrCanvas, 825, 790, 210, 210);
+            context.imageSmoothingEnabled = true;
+            return hasVisibleQrPixels(context, 825, 790, 210);
         }
 
         const qrImage = qrHolder.querySelector('img');
@@ -840,8 +876,10 @@ async function drawShareCardQr(context, productUrl) {
             ]);
         }
         if (!qrImage.complete || !qrImage.naturalWidth) return false;
-        context.drawImage(qrImage, 840, 820, 190, 190);
-        return true;
+        context.imageSmoothingEnabled = false;
+        context.drawImage(qrImage, 825, 790, 210, 210);
+        context.imageSmoothingEnabled = true;
+        return hasVisibleQrPixels(context, 825, 790, 210);
     } catch (error) {
         console.warn('Không thể vẽ mã QR lên ảnh tóm tắt:', error);
         return false;
@@ -886,21 +924,27 @@ async function createShareCard() {
             ? PUBLIC_APP_URL
             : `${location.origin}${location.pathname}`;
         context.fillStyle = '#fff';
-        context.fillRect(820, 800, 230, 250);
+        context.fillRect(800, 765, 260, 290);
+        context.strokeStyle = '#10233f';
+        context.lineWidth = 4;
+        context.strokeRect(800, 765, 260, 290);
         const qrDrawn = await drawShareCardQr(context, productUrl);
         context.fillStyle = '#10233f';
         if (qrDrawn) {
             context.font = '22px Arial';
-            context.fillText('Quét để mở ScamCheck', 805, 1040);
+            context.fillText('Quét để mở ScamCheck', 817, 1035);
         } else {
             context.font = '24px Arial';
-            wrapCanvasText(context, productUrl, 835, 850, 200, 32, 6);
+            wrapCanvasText(context, productUrl, 820, 825, 220, 32, 6);
         }
 
         canvas.classList.remove('hidden');
+        createButton?.classList.add('hidden');
         document.getElementById('shareCardBtn')?.classList.remove('hidden');
         document.getElementById('downloadCardBtn')?.classList.remove('hidden');
-        status.textContent = 'Ảnh vuông 1080 × 1080 đã sẵn sàng.';
+        status.textContent = qrDrawn
+            ? 'Ảnh vuông 1080 × 1080 kèm mã QR đã sẵn sàng.'
+            : 'Ảnh đã sẵn sàng nhưng mã QR không tải được; đường dẫn ScamCheck đã được in thay thế.';
         return qrDrawn;
     } finally {
         createButton?.removeAttribute('disabled');
@@ -1501,6 +1545,9 @@ async function runSelfTests() {
                 && shareCanvas.height === 1080
                 && shareBlob?.type === 'image/png'
                 && shareBlob.size > 1000
+                && document.getElementById('createShareCardBtn')?.classList.contains('hidden')
+                && !document.getElementById('shareCardBtn')?.classList.contains('hidden')
+                && !document.getElementById('downloadCardBtn')?.classList.contains('hidden')
         );
     } catch (error) {
         console.error('Self-test tạo ảnh tóm tắt thất bại:', error);
