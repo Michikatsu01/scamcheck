@@ -516,14 +516,7 @@ body.high-contrast :focus-visible { outline-color: #00ffff; }
         box-shadow: 0 6px 18px rgb(16 35 63 / 8%);
     }
     .brand {
-        position: static;
-        width: max-content;
-        margin: 0 0 9px;
-    }
-    .brand-mark {
-        width: 36px;
-        height: 36px;
-        border-radius: 10px 10px 14px 14px;
+        display: none;
     }
     .category-navigation {
         display: grid;
@@ -604,5 +597,146 @@ body.high-contrast :focus-visible { outline-color: #00ffff; }
         background: #00ffff;
         outline: 2px solid #00ffff;
         color: #000;
+    }
+
+    /* Mobile practice flow: keep every control inside the viewport. */
+    #practiceSection,
+    .practice-workspace,
+    #quizWorkspace,
+    .quiz-exam-layout {
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+    }
+    #practiceSection .section-intro {
+        margin-bottom: 18px;
+    }
+    #practiceSection .section-intro h2 {
+        margin-block: 9px 7px;
+        font-size: 1.55rem;
+    }
+    .quiz-exam-layout {
+        gap: 14px;
+    }
+    .quiz-question-panel {
+        min-width: 0;
+        min-height: 0;
+        padding: 18px 16px 16px;
+        overflow: hidden;
+        border-radius: 16px;
+    }
+    .question-card-heading {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 10px;
+        margin-bottom: 18px;
+        padding-bottom: 15px;
+    }
+    .question-card-heading > div {
+        min-width: 0;
+    }
+    .question-card-heading h3 {
+        margin-top: 3px;
+        font-size: 1rem;
+        line-height: 1.3;
+    }
+    .practice-score {
+        align-self: start;
+        min-width: max-content;
+        padding: 6px 9px;
+        white-space: nowrap;
+    }
+    .practice-question {
+        min-width: 0;
+        min-height: 0;
+    }
+    .practice-question .question-prompt {
+        margin-bottom: 10px;
+        font-size: .95rem;
+        line-height: 1.45;
+    }
+    .practice-message {
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+        padding: 15px 14px;
+        overflow-wrap: anywhere;
+        border-left-width: 4px;
+        border-radius: 11px;
+        font-size: 1rem;
+        line-height: 1.55;
+        word-break: break-word;
+    }
+    .practice-choices {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 9px;
+        margin-top: 16px;
+    }
+    .practice-choices button {
+        min-width: 0;
+        min-height: 66px;
+        gap: 9px;
+        padding: 9px 10px;
+        border-radius: 11px;
+    }
+    .answer-letter {
+        flex-basis: 32px;
+        height: 32px;
+    }
+    .quiz-move-controls {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 9px;
+        margin-top: 20px;
+        padding-top: 16px;
+    }
+    .quiz-move-controls button {
+        width: 100%;
+        min-width: 0;
+        padding-inline: 8px;
+        white-space: normal;
+    }
+    .question-navigation {
+        width: 100%;
+        min-width: 0;
+        padding: 17px 16px 16px;
+        overflow: hidden;
+        border-radius: 16px;
+    }
+    .question-navigation-heading {
+        gap: 8px;
+    }
+    .quiz-progress-summary {
+        min-width: 76px;
+    }
+    .question-number-list {
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: 8px;
+        width: 100%;
+        min-width: 0;
+        margin-top: 15px;
+    }
+    .question-number-btn {
+        width: 100%;
+        min-width: 0;
+        min-height: 48px;
+        border-radius: 10px;
+    }
+    .question-legend {
+        gap: 8px 12px;
+        margin-top: 16px;
+    }
+    .submit-quiz-btn {
+        margin-top: 18px;
+    }
+    .quiz-results {
+        width: 100%;
+        min-width: 0;
+        padding: 18px 16px;
+        overflow: hidden;
+    }
+    .quiz-review-item,
+    .quiz-advice {
+        overflow-wrap: anywhere;
     }
 }
