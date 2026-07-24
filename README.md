@@ -64,7 +64,7 @@ Origin Pages đã được CORS cho phép là `https://minhkhoitn12345.github.io
 - 12 luật ngoài AI, chống prompt injection, phát hiện URL rút gọn, punycode và tên miền gần giống 10 ngân hàng.
 - Trần 12 lượt AI/phiên, nhật ký phiên, cache tin trùng và lịch sử không giới hạn số bản ghi cố định, có xoá từng tin/toàn bộ.
 - Cô tâm lý 2–3 câu; Người ứng cứu bốn tình huống; chặn số ngoài bảng tổng đài xác minh.
-- Nhập giọng nói, thư viện 12 kiểu với tình huống mô phỏng và dẫn chứng chính thống, hướng dẫn từng bước, hỏi đáp 8 chủ đề và Trợ lý AI chăm sóc người dùng mở nhanh từ logo nổi, tìm kiếm/lọc nhanh, ngân hàng luyện tập 25 câu với mỗi bộ 10 câu ngẫu nhiên và 25 gợi ý riêng theo tình huống, chữ lớn.
+- Nhập giọng nói, thư viện 12 kiểu với tình huống mô phỏng và dẫn chứng chính thống, hướng dẫn từng bước, hỏi đáp 8 chủ đề và Trợ lý AI chăm sóc người dùng mở nhanh từ logo nổi, tìm kiếm/lọc nhanh, ngân hàng luyện tập 60 câu với mỗi bộ 10 câu ngẫu nhiên và 60 gợi ý riêng theo tình huống, chữ lớn.
 - Ảnh cảnh báo 1080 × 1080 có QR, Web Share và tải PNG.
 - Bộ 60 tin cân bằng 20/20/20, 18 tin khó, confusion matrix và so sánh trước/sau lớp luật.
 

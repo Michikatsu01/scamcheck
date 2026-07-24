@@ -1,5 +1,5 @@
 import { sampleMessages } from './data/sample-messages.js';
-import { practiceMessages } from './data/practice-messages.js';
+import { practiceMessages } from './data/practice-messages.js?v=20260724-practice-60';
 import { libraryOverview, scamLibrary } from './data/scam-library.js';
 
 const checkBtn = document.getElementById('checkBtn');
@@ -2256,9 +2256,9 @@ async function runSelfTests() {
     assert('Phát hiện tiếng Trung và tiếng Nga', containsUnsupportedLanguage('你的訂單正在運送途中') && containsUnsupportedLanguage('Ваша подписка будет заблокирована'));
     const randomPracticeSetProbe = createRandomPracticeSet();
     const nextPracticeSetProbe = createRandomPracticeSet(new Set(randomPracticeSetProbe.map(item => item.text)));
-    assert('Ngân hàng luyện tập tạo bộ 10 câu ngẫu nhiên không trùng', practiceMessages.length === 25
-        && practiceMessages.filter(item => item.label === 'Lừa đảo').length === 13
-        && practiceMessages.filter(item => item.label === 'An toàn').length === 12
+    assert('Ngân hàng luyện tập tạo bộ 10 câu ngẫu nhiên không trùng', practiceMessages.length === 60
+        && practiceMessages.filter(item => item.label === 'Lừa đảo').length === 43
+        && practiceMessages.filter(item => item.label === 'An toàn').length === 17
         && randomPracticeSetProbe.length === PRACTICE_SET_SIZE
         && new Set(randomPracticeSetProbe.map(item => item.text)).size === PRACTICE_SET_SIZE
         && nextPracticeSetProbe.length === PRACTICE_SET_SIZE
