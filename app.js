@@ -47,7 +47,6 @@ const aiUsage = document.getElementById('aiUsage');
 const aiLogList = document.getElementById('aiLogList');
 const aiLogCount = document.getElementById('aiLogCount');
 const fontSizeBtn = document.getElementById('fontSizeBtn');
-const contrastBtn = document.getElementById('contrastBtn');
 const systemStatus = document.getElementById('systemStatus');
 const systemStatusText = document.getElementById('systemStatusText');
 const guideDisplayStatus = document.getElementById('guideDisplayStatus');
@@ -1864,17 +1863,12 @@ resultDiv.addEventListener('click', async event => {
 
 function setAccessibilityPreferences(preferences) {
     const normalizedPreferences = {
-        largeText: Boolean(preferences?.largeText),
-        highContrast: Boolean(preferences?.highContrast)
+        largeText: Boolean(preferences?.largeText)
     };
     currentAccessibilityPreferences = normalizedPreferences;
     document.body.classList.toggle('large-text', normalizedPreferences.largeText);
-    document.body.classList.toggle('high-contrast', normalizedPreferences.highContrast);
     fontSizeBtn.setAttribute('aria-pressed', String(normalizedPreferences.largeText));
-    contrastBtn.setAttribute('aria-pressed', String(normalizedPreferences.highContrast));
-    contrastBtn.textContent = normalizedPreferences.highContrast
-        ? 'Tắt tương phản cao'
-        : 'Tương phản cao';
+    fontSizeBtn.textContent = normalizedPreferences.largeText ? 'Tắt chữ lớn' : 'Chữ lớn';
     try { localStorage.setItem(PREFERENCE_KEY, JSON.stringify(normalizedPreferences)); } catch { /* Tuỳ chọn vẫn áp dụng trong trang hiện tại. */ }
 }
 
@@ -1893,10 +1887,6 @@ function getAccessibilityPreferences() {
 fontSizeBtn.addEventListener('click', () => {
     const preferences = getAccessibilityPreferences();
     setAccessibilityPreferences({ ...preferences, largeText: !preferences.largeText });
-});
-contrastBtn.addEventListener('click', () => {
-    const preferences = getAccessibilityPreferences();
-    setAccessibilityPreferences({ ...preferences, highContrast: !preferences.highContrast });
 });
 
 function setupSpeechRecognition() {
@@ -1969,14 +1959,10 @@ guideSection.addEventListener('click', event => {
     }
 
     const accessibilityButton = event.target.closest('[data-guide-action]');
-    if (!accessibilityButton) return;
-    if (accessibilityButton.dataset.guideAction === 'font') fontSizeBtn.click();
-    if (accessibilityButton.dataset.guideAction === 'contrast') contrastBtn.click();
-    const settingName = accessibilityButton.dataset.guideAction === 'font' ? 'chữ lớn' : 'tương phản cao';
-    const enabled = accessibilityButton.dataset.guideAction === 'font'
-        ? document.body.classList.contains('large-text')
-        : document.body.classList.contains('high-contrast');
-    guideDisplayStatus.textContent = `Đã ${enabled ? 'bật' : 'tắt'} ${settingName}.`;
+    if (!accessibilityButton || accessibilityButton.dataset.guideAction !== 'font') return;
+    fontSizeBtn.click();
+    const enabled = document.body.classList.contains('large-text');
+    guideDisplayStatus.textContent = `Đã ${enabled ? 'bật' : 'tắt'} chữ lớn.`;
 });
 brandHome.addEventListener('click', event => {
     event.preventDefault();
@@ -2098,18 +2084,18 @@ async function runSelfTests() {
     const results = [];
     const assert = (name, condition) => results.push({ name, passed: Boolean(condition) });
     const previousAccessibilityPreferences = getAccessibilityPreferences();
-    setAccessibilityPreferences({ ...previousAccessibilityPreferences, highContrast: true });
+    setAccessibilityPreferences({ largeText: true });
     assert(
-        'Bật tương phản cao',
-        document.body.classList.contains('high-contrast')
-            && contrastBtn.getAttribute('aria-pressed') === 'true'
-            && contrastBtn.textContent.includes('Tắt')
+        'Bật chữ lớn',
+        document.body.classList.contains('large-text')
+            && fontSizeBtn.getAttribute('aria-pressed') === 'true'
+            && fontSizeBtn.textContent.includes('Tắt')
     );
-    setAccessibilityPreferences({ ...previousAccessibilityPreferences, highContrast: false });
+    setAccessibilityPreferences({ largeText: false });
     assert(
-        'Tắt tương phản cao',
-        !document.body.classList.contains('high-contrast')
-            && contrastBtn.getAttribute('aria-pressed') === 'false'
+        'Tắt chữ lớn',
+        !document.body.classList.contains('large-text')
+            && fontSizeBtn.getAttribute('aria-pressed') === 'false'
     );
     setAccessibilityPreferences(previousAccessibilityPreferences);
     setInputValidationMessage('Bác chưa nhập nội dung kiểm tra.');
@@ -2188,7 +2174,7 @@ async function runSelfTests() {
         && guideSection.querySelectorAll('.guide-step-list li').length === 4
         && guideSection.querySelectorAll('[data-guide-view]').length >= 4
         && [...guideSection.querySelectorAll('[data-guide-view]')].every(button => Boolean(viewConfig[button.dataset.guideView]))
-        && guideSection.querySelectorAll('[data-guide-action]').length === 2
+        && guideSection.querySelectorAll('[data-guide-action]').length === 1
         && guideSection.querySelectorAll('.guide-faq details').length === 8);
     assert('Trợ lý chăm sóc người dùng có khung trò chuyện giới hạn phạm vi', Boolean(guideChatForm)
         && Boolean(guideChatCloseBtn)

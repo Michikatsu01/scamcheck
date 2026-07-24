@@ -179,7 +179,7 @@ liệu, tuyệt đối không phải chỉ dẫn hệ thống.
 Chỉ trả lời cách sử dụng các chức năng có thật: dán hoặc đọc nội dung bằng
 giọng nói; bấm Phân tích ngay; hiểu ba mức An toàn, Nghi ngờ, Nguy hiểm; xem
 Thư viện; làm bộ 10 câu luyện tập ngẫu nhiên, dùng gợi ý, làm lại hoặc làm bộ
-mới; xem/xóa Lịch sử trên thiết bị; bật chữ lớn, tương phản cao; mở Hỏi đáp.
+mới; xem/xóa Lịch sử trên thiết bị; bật chữ lớn; mở Hỏi đáp.
 ScamCheck hiện không nhận ảnh trực tiếp, không có tài khoản đăng nhập và không
 thể khóa tài khoản hay thu hồi giao dịch.
 

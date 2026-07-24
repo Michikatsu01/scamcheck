@@ -6,7 +6,7 @@
     <meta name="theme-color" content="#f7f9fc">
     <link rel="icon" href="favicon.svg" type="image/svg+xml">
     <title>ScamCheck - Kiểm tra lừa đảo</title>
-    <link rel="stylesheet" href="style.css?v=20260724-floating-guide-panel">
+    <link rel="stylesheet" href="style.css?v=20260724-remove-contrast">
 </head>
 <body>
     <div class="app-shell">
@@ -55,7 +55,6 @@
                 <div class="topbar-tools">
                     <span id="aiUsage" class="ai-usage" aria-live="polite">AI: 0/12 lượt</span>
                     <button type="button" id="fontSizeBtn" class="utility-btn" aria-pressed="false">Chữ lớn</button>
-                    <button type="button" id="contrastBtn" class="utility-btn" aria-pressed="false">Tương phản cao</button>
                     <div id="systemStatus" class="safety-status" role="status">
                         <span aria-hidden="true"></span>
                         <span id="systemStatusText">Đang kiểm tra máy chủ</span>
@@ -276,7 +275,6 @@
                             <p>Bác có thể đổi cách hiển thị ngay tại đây. Thiết lập sẽ được ghi nhớ trên thiết bị này.</p>
                             <div class="guide-accessibility-actions">
                                 <button type="button" data-guide-action="font">Bật hoặc tắt chữ lớn</button>
-                                <button type="button" data-guide-action="contrast">Bật hoặc tắt tương phản cao</button>
                             </div>
                             <p id="guideDisplayStatus" class="assistive-status" aria-live="polite"></p>
                             <p class="guide-assistance-note"><strong>Nếu vẫn khó thao tác:</strong> nhờ một người thân đáng tin cậy cùng xem màn hình. Không đưa mật khẩu, mã OTP hoặc quyền điều khiển điện thoại cho người lạ.</p>
@@ -423,7 +421,7 @@
         </div>
         <div class="guide-chat-suggestions" aria-label="Câu hỏi gợi ý">
             <button type="button" data-guide-question="Làm sao để kiểm tra một tin nhắn đáng ngờ?">Kiểm tra tin nhắn</button>
-            <button type="button" data-guide-question="Làm sao bật chữ lớn và tương phản cao?">Chỉnh dễ đọc</button>
+            <button type="button" data-guide-question="Làm sao bật chữ lớn?">Chỉnh dễ đọc</button>
             <button type="button" data-guide-question="Làm sao dùng gợi ý trong phần luyện tập?">Luyện tập</button>
             <button type="button" data-guide-question="Làm sao xem hoặc xóa lịch sử kiểm tra?">Lịch sử</button>
         </div>
@@ -447,6 +445,6 @@
     <script src="verified-hotlines.js"></script>
     <script src="organization-catalog.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" integrity="sha512-CNgIRecGo7nphbeZ04Sc13ka07paqdeTu0WR1IM4kNcpmBAUSHSQX0FslNhTDadL4O5SAGapGt4FodqL8My0mA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <script type="module" src="app.js?v=20260724-floating-guide-panel"></script>
+    <script type="module" src="app.js?v=20260724-remove-contrast"></script>
 </body>
 </html>
